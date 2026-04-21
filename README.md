@@ -1,4 +1,4 @@
-# Decentralized Banking System (D.Bank)
+# Decentralized Banking System (Aureon)
 
 A **college-level prototype** of a minimal on-chain “bank”: users can **deposit ETH**, **withdraw** (with time-based interest logic in the contract), and **borrow** against collateral (token minting is stubbed in Solidity). A **Truffle** workspace deploys Solidity contracts to a **local Ganache** chain; a **static web frontend** talks to the chain through **MetaMask** or an optional **development-only private-key mode**.
 
@@ -279,3 +279,5 @@ This project is a **learning prototype**. It is **not** audited financial softwa
 ## License
 
 See `contracts` SPDX headers (MIT) unless your course materials specify otherwise.
+
+

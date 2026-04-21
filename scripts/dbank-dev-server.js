@@ -145,7 +145,7 @@ server.on("error", function (e) {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log("D.Bank dev server");
+  console.log("Aureon dev server");
   console.log("  Ganache RPC:", GANACHE);
   console.log("  App:        http://127.0.0.1:" + PORT + "/frontend/");
   console.log("  RPC proxy:  http://127.0.0.1:" + PORT + "/rpc-proxy (for Ganache-key mode)");

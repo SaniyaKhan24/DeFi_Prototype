@@ -1,5 +1,5 @@
 /**
- * D.Bank UI — classic scripts (ethers UMD + embedded artifact).
+ * Aureon UI — classic scripts (ethers UMD + embedded artifact).
  * No ES module CDN dependency so the app starts even if esm.sh is blocked.
  */
 (function () {
