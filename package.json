@@ -1,0 +1,23 @@
+{
+  "name": "decentralized_banking_system",
+  "version": "1.0.0",
+  "description": "Decentralized Banking System - Truffle project",
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate --reset --network development",
+    "test": "truffle test",
+    "test:chain": "truffle test --network development",
+    "start:ganache": "ganache -p 8545 -h 127.0.0.1",
+    "migrate:gui": "truffle migrate --reset --network development_gui",
+    "test:gui": "truffle test --network development_gui",
+    "export:frontend": "node scripts/export-frontend-artifact.js",
+    "dev": "node scripts/dbank-dev-server.js",
+    "serve": "npx --yes http-server . -p 5174 -c-1 --cors",
+    "serve:3000": "npx --yes http-server . -p 3000 -c-1 --cors",
+    "web": "npm run export:frontend && node scripts/dbank-dev-server.js"
+  },
+  "devDependencies": {
+    "truffle": "^5.1.39",
+    "ganache": "^7.7.0"
+  }
+}

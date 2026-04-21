@@ -1,0 +1,46 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# --- Dependencies (do not push to GitHub) ---
+node_modules/
+frontend/node_modules/
+/.pnp
+.pnp.js
+
+# --- Truffle / Solidity build output (regenerate with: npm run compile) ---
+build/
+
+# --- Testing / coverage ---
+coverage/
+.nyc_output/
+
+# --- Logs & debug ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Editors & tooling ---
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Optional: local Cursor/IDE workspace artifacts ---
+.cursor/
+*.code-workspace
+
+# --- Misc caches ---
+.cache/
+.parcel-cache/
+.turbo/

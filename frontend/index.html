@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D.Bank — On-chain vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <aside class="setup-banner" role="note">
+    <strong class="setup-banner-title">Easiest path (pick one)</strong>
+    <ol class="setup-steps">
+      <li>Deploy: <code>npm run migrate:gui</code> · export: <code>npm run export:frontend</code>.</li>
+      <li>Run <strong><code>npm run dev</code></strong> (recommended). Open the URL it prints (default <code>http://127.0.0.1:8788/frontend/</code>) — includes <code>/rpc-proxy</code> for Ganache-key mode.</li>
+      <li><strong>MetaMask:</strong> add network <em>manually</em> (see <strong>Setup help</strong>). Import Ganache mnemonic so you have ETH. Then <strong>Connect wallet</strong>.</li>
+      <li><strong>No MetaMask?</strong> Select <strong>Ganache private key</strong>, paste a key from Ganache → Accounts → key icon, then <strong>Connect wallet</strong> (only works with <code>npm run dev</code>).</li>
+      <li>Paste <strong>DecentralizedBank</strong> contract address from migrate output — not a Ganache account address.</li>
+    </ol>
+  </aside>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <div>
+        <h1 class="brand-title">D.Bank</h1>
+        <p class="brand-tag">Decentralized vault · college prototype</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-ghost" id="btn-networks" aria-expanded="false" aria-controls="network-panel">Setup help</button>
+      <button type="button" class="btn btn-primary" id="btn-connect">Connect wallet</button>
+    </div>
+  </header>
+
+  <div class="network-drawer" id="network-panel" hidden>
+    <p class="drawer-lead">MetaMask’s “add network” buttons are unreliable (chain id vs network id). Add the network <strong>by hand</strong> once:</p>
+    <ol class="setup-steps" style="margin-bottom: 1rem">
+      <li>MetaMask → <strong>Networks</strong> → <strong>Add network</strong> → <strong>Add a network manually</strong>.</li>
+      <li><strong>New RPC URL</strong> — copy this (Ganache UI default): <code id="copy-rpc">http://127.0.0.1:7545</code> <button type="button" class="btn btn-secondary btn-tiny" data-copy="http://127.0.0.1:7545">Copy</button></li>
+      <li><strong>Chain ID</strong> — try <strong>1337</strong> first (common for Ganache). If MetaMask complains, try <strong>5777</strong>. Copy: <button type="button" class="btn btn-secondary btn-tiny" data-copy="1337">1337</button> <button type="button" class="btn btn-secondary btn-tiny" data-copy="5777">5777</button></li>
+      <li><strong>Currency symbol:</strong> ETH · <strong>Chain name:</strong> Local Ganache (any label).</li>
+    </ol>
+    <p class="hint">CLI Ganache on port <code>8545</code>? Use RPC <code>http://127.0.0.1:8545</code> and the same chain ID Ganache shows when it starts.</p>
+    <p class="hint">Then <strong>import Ganache’s mnemonic</strong> (or a private key) so your account has test ETH on that network.</p>
+  </div>
+
+  <main class="shell" id="main-shell">
+    <section class="card card--conn" style="--delay: 0s">
+      <p class="eyebrow">How to connect</p>
+      <div class="conn-grid">
+        <label class="conn-choice">
+          <input type="radio" name="conn-mode" value="metamask" checked />
+          <span><strong>MetaMask</strong> — browser extension (add network manually using Setup help).</span>
+        </label>
+        <label class="conn-choice">
+          <input type="radio" name="conn-mode" value="devkey" />
+          <span><strong>Ganache private key</strong> — no MetaMask; uses this site’s <code>/rpc-proxy</code>. Run <code>npm run dev</code>, not plain <code>serve</code>. College / local only.</span>
+        </label>
+      </div>
+      <label class="field">
+        <span class="field-label">Ganache private key (only for “Ganache private key” mode)</span>
+        <input type="password" id="input-dev-pk" class="input mono" placeholder="0x… from Ganache → Accounts → key icon" autocomplete="off" spellcheck="false" />
+      </label>
+    </section>
+    <section class="hero card card--hero" style="--delay: 0s">
+      <p class="eyebrow">Wallet</p>
+      <p class="mono address" id="el-address">Not connected</p>
+      <div class="hero-metrics">
+        <div>
+          <span class="metric-label">Native balance</span>
+          <span class="metric-value" id="el-eth-balance">—</span>
+        </div>
+        <div>
+          <span class="metric-label">Chain</span>
+          <span class="metric-value" id="el-chain">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--contract" style="--delay: 0.06s">
+      <p class="eyebrow">Contract</p>
+      <label class="field">
+        <span class="field-label">DecentralizedBank address</span>
+        <input type="text" id="input-contract" class="input mono" placeholder="DecentralizedBank from migrate — not your Ganache account" spellcheck="false" autocomplete="off" />
+      </label>
+      <div class="row-actions">
+        <button type="button" class="btn btn-secondary" id="btn-save-contract">Save address</button>
+        <button type="button" class="btn btn-ghost" id="btn-reload-artifact">Reload artifact</button>
+      </div>
+      <p class="hint" id="el-artifact-status">Loading ABI…</p>
+    </section>
+
+    <section class="card card--savings" style="--delay: 0.12s">
+      <div class="card-head">
+        <h2 class="card-title">Savings</h2>
+        <span class="pill" id="pill-deposit">idle</span>
+      </div>
+      <p class="card-copy">Minimum deposit <strong>0.01 ETH</strong>. One active deposit per address. Withdraw returns principal (interest logic is on-chain; UI shows timing).</p>
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="stat-label">Locked in vault</span>
+          <span class="stat-value mono" id="el-vault-balance">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Deposit since</span>
+          <span class="stat-value" id="el-deposit-since">—</span>
+        </div>
+      </div>
+      <label class="field">
+        <span class="field-label">Amount (ETH)</span>
+        <input type="text" id="input-deposit" class="input" inputmode="decimal" placeholder="0.02" />
+      </label>
+      <div class="row-actions">
+        <button type="button" class="btn btn-gold" id="btn-deposit" disabled>Deposit</button>
+        <button type="button" class="btn btn-outline" id="btn-withdraw" disabled>Withdraw all</button>
+      </div>
+    </section>
+
+    <section class="card card--loan" style="--delay: 0.18s">
+      <div class="card-head">
+        <h2 class="card-title">Collateral loan</h2>
+        <span class="pill pill--loan" id="pill-loan">no loan</span>
+      </div>
+      <p class="card-copy">Post <strong>≥ 0.01 ETH</strong> collateral once. <strong>Pay off</strong> returns 90% of collateral; 10% remains as contract fee (per Solidity).</p>
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="stat-label">Collateral locked</span>
+          <span class="stat-value mono" id="el-collateral">—</span>
+        </div>
+      </div>
+      <label class="field">
+        <span class="field-label">Collateral (ETH)</span>
+        <input type="text" id="input-borrow" class="input" inputmode="decimal" placeholder="0.02" />
+      </label>
+      <div class="row-actions">
+        <button type="button" class="btn btn-teal" id="btn-borrow" disabled>Open loan</button>
+        <button type="button" class="btn btn-outline" id="btn-payoff" disabled>Pay off</button>
+      </div>
+    </section>
+
+    <section class="card card--log" style="--delay: 0.24s">
+      <h2 class="card-title">Activity</h2>
+      <ul class="log" id="el-log" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <div class="toast-stack" id="toast-stack" aria-live="assertive"></div>
+
+  <script src="js/artifact-lite-global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js" crossorigin="anonymous"></script>
+  <script src="js/app.js"></script>
+  <script>
+    setTimeout(function () {
+      if (!window.__DBANK_READY) {
+        var el = document.getElementById("el-artifact-status");
+        if (el && el.textContent.indexOf("Ready") === -1 && el.textContent.indexOf("Loaded") === -1) {
+          el.textContent =
+            "App did not finish starting. Open DevTools (F12) → Console. Allow cdn.jsdelivr.net if an ad blocker blocked ethers.js.";
+        }
+      }
+    }, 5000);
+  </script>
+</body>
+</html>
